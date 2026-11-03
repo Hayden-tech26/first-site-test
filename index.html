@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>优秀员工提名 · H5</title>
+<style>
+  :root{
+    --primary:#1f4e8c; --primary-dark:#163a69; --primary-soft:#eaf1fb;
+    --bg:#f4f6fa; --card:#fff; --text:#1f2733; --muted:#6b7686;
+    --border:#e3e8ef; --danger:#d9362b; --success:#1f9d55;
+    --radius:12px; --shadow:0 2px 12px rgba(31,78,140,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+  .app-shell{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);padding-bottom:32px}
+  .app-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:28px 20px 22px;border-bottom-left-radius:18px;border-bottom-right-radius:18px}
+  .app-header .brand{font-size:13px;letter-spacing:2px;opacity:.85}
+  .app-header h1{margin:6px 0 4px;font-size:22px;font-weight:600}
+  .app-header p{margin:0;font-size:13px;opacity:.85}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin:16px;padding:18px 16px}
+  .section-title{font-size:14px;font-weight:600;color:var(--primary);margin:0 0 14px;display:flex;align-items:center;gap:8px}
+  .section-title::before{content:"";width:4px;height:14px;background:var(--primary);border-radius:2px}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:14px;font-weight:500;margin-bottom:6px}
+  .field .req{color:var(--danger);margin-left:2px}
+  .field input,.field textarea{width:100%;padding:11px 12px;font-size:15px;color:var(--text);background:#fbfcfe;border:1px solid var(--border);border-radius:8px;outline:none;transition:border-color .15s,box-shadow .15s;font-family:inherit}
+  .field input:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);background:#fff}
+  .field textarea{resize:vertical;min-height:120px}
+  .field .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  .field .counter{font-size:12px;color:var(--muted);margin-top:6px;text-align:right}
+  .field .counter.ok{color:var(--success)} .field .counter.bad{color:var(--danger)}
+  .field .err{font-size:12px;color:var(--danger);margin-top:6px;display:none}
+  .field.invalid .err{display:block}
+  .field.invalid input,.field.invalid textarea{border-color:var(--danger)}
+  .btn{display:block;width:100%;padding:13px;font-size:16px;font-weight:600;color:#fff;background:var(--primary);border:none;border-radius:10px;cursor:pointer;transition:background .15s,transform .05s}
+  .btn:hover{background:var(--primary-dark)} .btn:active{transform:scale(.99)}
+  .btn.secondary{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+  .toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 18px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:90%;z-index:50}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)} .toast.success{background:var(--success)} .toast.error{background:var(--danger)}
+  .success-box{text-align:center;padding:40px 20px}
+  .success-box .check{width:64px;height:64px;border-radius:50%;background:var(--success);color:#fff;font-size:34px;line-height:64px;margin:0 auto 16px}
+  .admin-link{text-align:center;font-size:12px;color:var(--muted);margin:8px 0 24px}
+  .admin-link a{color:var(--muted);text-decoration:none}
+  /* 后台 */
+  .admin-shell{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+  .admin-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px}
+  .admin-header h1{font-size:20px;color:var(--primary);margin:0}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  .toolbar input{padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;min-width:220px}
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .stat{flex:1;min-width:140px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 16px}
+  .stat .num{font-size:26px;font-weight:700;color:var(--primary)} .stat .lbl{font-size:13px;color:var(--muted)}
+  table.nom{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);font-size:14px}
+  table.nom th,table.nom td{padding:11px 12px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+  table.nom th{background:var(--primary-soft);color:var(--primary-dark);font-weight:600}
+  table.nom tr:last-child td{border-bottom:none}
+  table.nom .reason-cell{max-width:360px;white-space:pre-wrap}
+  .tag{display:inline-block;padding:2px 8px;border-radius:6px;background:var(--primary-soft);color:var(--primary-dark);font-size:12px}
+  .empty{text-align:center;color:var(--muted);padding:40px}
+  .login-card{max-width:380px;margin:80px auto;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:28px 24px}
+  .login-card h2{margin:0 0 4px;color:var(--primary)} .login-card p{color:var(--muted);font-size:13px;margin:0 0 18px}
+  .login-card .err{color:var(--danger);font-size:13px;min-height:18px;margin-top:8px}
+  .hidden{display:none!important}
+  @media(max-width:600px){table.nom{font-size:13px}table.nom .reason-cell{max-width:200px}}
+</style>
+</head>
+<body>
+
+<!-- ============ 提名表单（小程序页） ============ -->
+<div class="app-shell" id="formView">
+  <header class="app-header">
+    <div class="brand">员工评优 · 内部提名</div>
+    <h1>优秀员工提名</h1>
+    <p>请认真填写，您的推荐将作为评优重要依据</p>
+  </header>
+
+  <form id="form" novalidate>
+    <div class="card">
+      <div class="section-title">基本信息</div>
+      <div class="field" id="f-manager">
+        <label>提名经理 <span class="req">*</span></label>
+        <input type="text" id="manager_name" placeholder="请输入您的姓名" autocomplete="off">
+        <div class="err"></div>
+      </div>
+      <div class="field" id="f-sesa">
+        <label>被提名员工 SESA 号 <span class="req">*</span></label>
+        <input type="text" id="sesa_id" placeholder="例如：E123456" autocomplete="off">
+        <div class="err"></div>
+      </div>
+      <div class="field" id="f-emp">
+        <label>被提名员工姓名 <span class="req">*</span></label>
+        <input type="text" id="employee_name" placeholder="请输入员工姓名" autocomplete="off">
+        <div class="err"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">提名详情</div>
+      <div class="field" id="f-reason">
+        <label>提名理由 <span class="req">*</span></label>
+        <textarea id="reason" placeholder="请写明具体事例：该员工在何项目/事件中做了什么、取得了什么结果、体现了哪些优秀品质……"></textarea>
+        <div class="hint">提示：请写具体事例，不要空话套话，至少 80 字。</div>
+        <div class="counter" id="reason-counter">0 / 80 字</div>
+        <div class="err"></div>
+      </div>
+      <div class="field" id="f-supplement">
+        <label>补充说明 <span style="color:var(--muted);font-weight:400">（选填）</span></label>
+        <textarea id="supplement" placeholder="其他需要补充说明的内容（选填）"></textarea>
+      </div>
+    </div>
+
+    <div style="padding:0 16px">
+      <button type="submit" class="btn" id="submitBtn">提交提名</button>
+    </div>
+  </form>
+
+  <div class="admin-link"><a href="#admin">管理员入口</a></div>
+</div>
+
+<!-- ============ 管理员后台 ============ -->
+<div class="admin-shell hidden" id="adminView">
+  <div class="admin-header">
+    <h1>优秀员工提名 · 管理后台</h1>
+    <div class="toolbar">
+      <input type="text" id="search" placeholder="搜索经理 / SESA / 姓名 / 理由…">
+      <button class="btn secondary" style="width:auto;padding:9px 16px" id="exportBtn">导出 CSV</button>
+      <button class="btn ghost" style="width:auto;padding:9px 16px" id="backBtn">返回表单</button>
+    </div>
+  </div>
+  <div class="stat-row">
+    <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">提名总数</div></div>
+    <div class="stat"><div class="num" id="statEmp">0</div><div class="lbl">被提名人数</div></div>
+    <div class="stat"><div class="num" id="statMgr">0</div><div class="lbl">参与经理数</div></div>
+  </div>
+  <table class="nom">
+    <thead><tr><th>#</th><th>提名经理</th><th>SESA 号</th><th>员工姓名</th><th>提名理由</th><th>补充说明</th><th>提交时间</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  <div class="empty hidden" id="empty">没有匹配的提名记录</div>
+</div>
+
+<!-- 管理员登录弹层 -->
+<div class="login-card hidden" id="loginCard" style="position:fixed;inset:0;margin:auto;height:fit-content;z-index:60">
+  <h2>管理员登录</h2>
+  <p>请输入管理员密码</p>
+  <div class="field" style="margin-bottom:8px">
+    <input type="password" id="adminPwd" placeholder="管理员密码" autocomplete="off">
+  </div>
+  <div class="err" id="loginErr"></div>
+  <button class="btn" id="loginBtn">登录</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== 配置 ===================== */
+const CONFIG = {
+  minReason: 80,
+  adminPassword: "admin888",
+  // 若需集中式数据库，可在此填入后端地址（留空则用浏览器本地存储）。
+  // 后端需提供：POST {base}/nominate 与 GET {base}/nominations，返回 {ok, items/errors}
+  backendUrl: ""
+};
+const STORE_KEY = "nominations_h5";
+
+/* ===================== 工具 ===================== */
+function $(id){return document.getElementById(id)}
+function countChars(s){return (s||"").trim().length}
+function toast(msg,type){const t=$("toast");t.textContent=msg;t.className="toast show "+(type||"");setTimeout(()=>t.className="toast "+(type||""),2200)}
+function nowStr(){const d=new Date();const p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`}
+
+/* ===================== 数据读写 ===================== */
+async function loadAll(){
+  if(CONFIG.backendUrl){
+    const r=await fetch(CONFIG.backendUrl+"/nominations",{credentials:"include"});
+    const j=await r.json(); return j.items||[];
+  }
+  try{return JSON.parse(localStorage.getItem(STORE_KEY)||"[]")}catch(e){return []}
+}
+async function saveAll(list){
+  if(CONFIG.backendUrl){
+    // 后端模式下提交走 /nominate，这里仅用于本地回显，无需实现
+    return;
+  }
+  localStorage.setItem(STORE_KEY,JSON.stringify(list));
+}
+async function submitOne(item){
+  if(CONFIG.backendUrl){
+    const r=await fetch(CONFIG.backendUrl+"/nominate",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",body:JSON.stringify(item)});
+    return await r.json();
+  }
+  const list=await loadAll();
+  item.id=list.length?Math.max(...list.map(x=>x.id||0))+1:1;
+  item.created_at=nowStr();
+  list.push(item); await saveAll(list);
+  return {ok:true,message:"提名提交成功，感谢您的推荐！"};
+}
+
+/* ===================== 表单 ===================== */
+const reasonEl=$("reason"), counterEl=$("reason-counter");
+function updateCounter(){const n=countChars(reasonEl.value);counterEl.textContent=n+" / "+CONFIG.minReason+" 字";counterEl.classList.toggle("ok",n>=CONFIG.minReason);counterEl.classList.toggle("bad",n>0&&n<CONFIG.minReason)}
+reasonEl.addEventListener("input",updateCounter); updateCounter();
+
+function setError(fid,msg){const f=$(fid);f.classList.add("invalid");const e=f.querySelector(".err");if(e)e.textContent=msg||""}
+function clearError(fid){$(fid).classList.remove("invalid")}
+
+$("form").addEventListener("submit",async function(e){
+  e.preventDefault();
+  ["f-manager","f-sesa","f-emp","f-reason"].forEach(clearError);
+  const payload={
+    manager_name:$("manager_name").value.trim(),
+    sesa_id:$("sesa_id").value.trim(),
+    employee_name:$("employee_name").value.trim(),
+    reason:reasonEl.value.trim(),
+    supplement:$("supplement").value.trim()
+  };
+  let ok=true;
+  if(!payload.manager_name){setError("f-manager","请填写提名经理");ok=false}
+  if(!payload.sesa_id){setError("f-sesa","请填写被提名员工 SESA 号");ok=false}
+  if(!payload.employee_name){setError("f-emp","请填写被提名员工姓名");ok=false}
+  if(!payload.reason){setError("f-reason","请填写提名理由");ok=false}
+  else if(countChars(payload.reason)<CONFIG.minReason){setError("f-reason","提名理由至少需 "+CONFIG.minReason+" 字，请补充具体事例");ok=false}
+  if(!ok){toast("请检查表单中标红的项","error");return}
+
+  const btn=$("submitBtn");btn.disabled=true;btn.textContent="提交中…";
+  try{
+    const data=await submitOne(payload);
+    if(data.ok){
+      $("formView").innerHTML='<div class="card success-box"><div class="check">✓</div><h2>提交成功</h2><p>'+(data.message||"")+'</p><p style="color:var(--muted);font-size:13px">您可关闭此页面。</p></div>';
+      toast("提交成功","success");
+    }else if(data.errors){
+      for(const k in data.errors){const m={manager_name:"f-manager",sesa_id:"f-sesa",employee_name:"f-emp",reason:"f-reason"};if(m[k])setError(m[k],data.errors[k])}
+      toast("提交失败，请检查表单","error");btn.disabled=false;btn.textContent="提交提名";
+    }else{toast("提交失败，请重试","error");btn.disabled=false;btn.textContent="提交提名"}
+  }catch(err){toast("网络错误，请重试","error");btn.disabled=false;btn.textContent="提交提名"}
+});
+
+/* ===================== 管理员 ===================== */
+function showAdmin(){if(sessionStorage.getItem("admin_h5")==="1"){renderAdmin();return}$("loginCard").classList.remove("hidden")}
+function hideAdmin(){$("adminView").classList.add("hidden");$("formView").classList.remove("hidden");location.hash=""}
+
+$("loginBtn").addEventListener("click",async function(){
+  const pw=$("adminPwd").value;
+  if(pw===CONFIG.adminPassword){sessionStorage.setItem("admin_h5","1");$("loginCard").classList.add("hidden");renderAdmin()}
+  else{$("loginErr").textContent="密码错误"}
+});
+$("adminPwd").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+
+$("backBtn").addEventListener("click",hideAdmin);
+
+async function renderAdmin(){
+  $("formView").classList.add("hidden");
+  $("adminView").classList.remove("hidden");
+  const items=await loadAll();
+  const tbody=$("tbody");tbody.innerHTML="";
+  items.forEach(it=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${it.id}</td><td>${esc(it.manager_name)}</td><td><span class="tag">${esc(it.sesa_id)}</span></td><td>${esc(it.employee_name)}</td><td class="reason-cell">${esc(it.reason)}</td><td class="reason-cell">${esc(it.supplement||"—")}</td><td style="white-space:nowrap">${esc(it.created_at||"")}</td>`;
+    tbody.appendChild(tr);
+  });
+  $("statTotal").textContent=items.length;
+  $("statEmp").textContent=new Set(items.map(i=>i.employee_name)).size;
+  $("statMgr").textContent=new Set(items.map(i=>i.manager_name)).size;
+  bindSearch();
+}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function bindSearch(){
+  $("search").oninput=function(){
+    const q=this.value.trim().toLowerCase();let shown=0;
+    Array.from($("tbody").children).forEach(r=>{const m=!q||r.textContent.toLowerCase().includes(q);r.style.display=m?"":"none";if(m)shown++});
+    $("empty").classList.toggle("hidden",shown!==0);
+  };
+}
+$("exportBtn").addEventListener("click",async function(){
+  const items=await loadAll();
+  let csv="\uFEFFID,提名经理,SESA号,员工姓名,提名理由,补充说明,提交时间\r\n";
+  items.forEach(i=>{csv+=`${i.id},${i.manager_name},${i.sesa_id},${i.employee_name},${csvCell(i.reason)},${csvCell(i.supplement||"")},${i.created_at||""}\r\n`});
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="nominations.csv";a.click();
+  toast("已导出 CSV","success");
+});
+function csvCell(v){v=String(v==null?"":v);return /[",\r\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+
+/* ===================== 路由 ===================== */
+window.addEventListener("hashchange",()=>{if(location.hash==="#admin")showAdmin();else hideAdmin()});
+if(location.hash==="#admin")showAdmin();
+</script>
+</body>
+</html>

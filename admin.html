@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>提名管理后台</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+{% if not logged_in %}
+  <div class="login-card">
+    <h2>提名管理后台</h2>
+    <p>请输入管理员密码进入</p>
+    <form id="loginForm">
+      <div class="field" style="margin-bottom:8px;">
+        <input type="password" id="password" placeholder="管理员密码" autocomplete="off">
+      </div>
+      <div class="err" id="loginErr"></div>
+      <button type="submit" class="btn">登录</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const errEl = document.getElementById('loginErr');
+      errEl.textContent = '';
+      const res = await fetch('/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: document.getElementById('password').value })
+      });
+      const data = await res.json();
+      if (data.ok) { location.href = '/admin'; }
+      else { errEl.textContent = data.error || '登录失败'; }
+    });
+  </script>
+{% else %}
+  <div class="admin-shell">
+    <div class="admin-header">
+      <h1>优秀员工提名 · 管理后台</h1>
+      <div class="toolbar">
+        <input type="text" id="search" placeholder="搜索经理 / SESA / 姓名 / 理由…">
+        <a class="btn secondary" style="width:auto;padding:9px 16px;" href="/api/nominations/export">导出 CSV</a>
+        <a class="btn ghost" style="width:auto;padding:9px 16px;" href="/admin/logout">退出</a>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat"><div class="num" id="statTotal">0</div><div class="lbl">提名总数</div></div>
+      <div class="stat"><div class="num" id="statEmp">0</div><div class="lbl">被提名人数</div></div>
+      <div class="stat"><div class="num" id="statMgr">0</div><div class="lbl">参与经理数</div></div>
+    </div>
+
+    <table class="nom">
+      <thead>
+        <tr>
+          <th>#</th><th>提名经理</th><th>SESA 号</th><th>员工姓名</th>
+          <th>提名理由</th><th>补充说明</th><th>提交时间</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        {% for it in items %}
+        <tr>
+          <td>{{ it.id }}</td>
+          <td>{{ it.manager_name }}</td>
+          <td><span class="tag">{{ it.sesa_id }}</span></td>
+          <td>{{ it.employee_name }}</td>
+          <td class="reason-cell">{{ it.reason }}</td>
+          <td class="reason-cell">{{ it.supplement or '—' }}</td>
+          <td style="white-space:nowrap;">{{ it.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="empty" id="empty" style="display:none;">没有匹配的提名记录</div>
+  </div>
+
+  <script>
+    const rows = Array.from(document.querySelectorAll('#tbody tr'));
+    document.getElementById('statTotal').textContent = rows.length;
+    document.getElementById('statEmp').textContent =
+      new Set(rows.map(r => r.children[3].textContent.trim())).size;
+    document.getElementById('statMgr').textContent =
+      new Set(rows.map(r => r.children[1].textContent.trim())).size;
+
+    document.getElementById('search').addEventListener('input', function () {
+      const q = this.value.trim().toLowerCase();
+      let shown = 0;
+      rows.forEach(r => {
+        const text = r.textContent.toLowerCase();
+        const match = !q || text.includes(q);
+        r.style.display = match ? '' : 'none';
+        if (match) shown++;
+      });
+      document.getElementById('empty').style.display = shown === 0 ? 'block' : 'none';
+    });
+  </script>
+{% endif %}
+</body>
+</html>
